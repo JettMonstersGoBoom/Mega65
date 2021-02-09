@@ -24,6 +24,7 @@ class Settings:
 	def __init__(self):
 		self.tile_width = 16
 		self.tile_height = 8
+		self.outaddress = 0x8000
 		self.offset = 0x200
 		self.output = "4bpp"
 		self.mask = 0xf 
@@ -189,6 +190,9 @@ def main():
 			settings.tile_width = 8
 			settings.output = "8bpp"
 			settings.mask = 0xff
+		elif arg.startswith("-m="):
+			settings.outaddress = int(arg[3:],16)
+			settings.offset = settings.outaddress//64
 		elif arg.startswith("-o="):
 			settings.outname = arg[3:]
 		elif arg.startswith("-t="):
