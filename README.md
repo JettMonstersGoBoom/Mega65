@@ -24,6 +24,7 @@ options
 
 	soon 
 	-s=<inputfile>		sprites
+```
 
 # e.g.
 python tools\tilemizer.py -m=c000 -b4 -o=data\mega -t=data\mega.bmp
