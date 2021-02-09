@@ -28,6 +28,11 @@ options
 # e.g.
 python tools\tilemizer.py -m=c000 -b4 -o=data\mega -t=data\mega.bmp
 
+# notes 
+
+	We assume that the 1st 16 colors of the input image is palette 0 . 2nd 16 colors is palette 1 etc. 
+	no image quantization is performed. 
+
 
 # Examples
 
