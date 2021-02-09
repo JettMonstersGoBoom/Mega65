@@ -6,6 +6,8 @@ Utils and samples for Mega65
 
 python script to convert images to tile,color,and map data.
 
+will detect x&y flipped tiles and remove duplicated tiles. 
+
 python tools\tilemizers.py 
 options 
 	-b4		set output to 4bpp 16 color mode 
