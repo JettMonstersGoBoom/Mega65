@@ -1,87 +1,84 @@
 
 
-.segment ZP
-RLE_DMA:
-RLE_SOURCE:	.dword	0
-RLE_DEST:		.dword	0
+.label MEGA_DMA_lsb=$D700
+.label MEGA_DMA_msb=$D701
+.label MEGA_DMA_bank=$D702
+.label MEGA_DMA_state=$D703
+
+.label RLE_SOURCE=$f8
 
 .macro RLE_GET() {
-	ldz #$00
 	lda ((RLE_SOURCE)),z
-	inc RLE_SOURCE
+	inz 
 	bne skip
 	inc RLE_SOURCE+1
 skip:
 }
 
-.segment CODE 
 
 DMA_BUFFER:
 DMA_COMMAND:	.byte 0 
 DMA_SIZE:			.word 0 
 DMA_SOURCE:		.byte	0,0,0
-DMA_DEST:			.byte 0,0,0
+RLE_DEST:			.byte 0,0,0
 DMA_MODULOS:	.dword 0 			//	ignored 
+
 
 RLEDecompressRoutine:
 {
 	lda #$00
 	sta DMA_SIZE+1
-	sta	dma_state
-	//	copy dest 
-	lda RLE_DEST
-	sta DMA_DEST
-	lda RLE_DEST+1
-	sta DMA_DEST+1
-	lda RLE_DEST+2
-	sta DMA_DEST+2
+	sta	MEGA_DMA_state
+	sta MEGA_DMA_bank
+	ldq RLE_SOURCE
+	stq DMA_SOURCE 
 
 	ldz #$00
 
 next:
 
 	RLE_GET()
-	sta DMA_SIZE
 	//	if top byte is zero 
-	cmp #$00 
+	cmp #$00
 	bne noexit 
+	//	quit
 	rts
 
 noexit:
+	sta DMA_SIZE
 
+	//	check top bit set for RLE run 
 	and #$80 
 	bne run 
-	//	copy source pointers
-	lda RLE_SOURCE
+
+	clc
+	tza 
+	adc RLE_SOURCE
 	sta DMA_SOURCE
 	lda RLE_SOURCE+1
+	adc #0 
 	sta DMA_SOURCE+1
-	lda RLE_SOURCE+2
-	sta DMA_SOURCE+2
 
-	//	COPY
+	//	set command to COPY
 	lda #$0
 	sta DMA_COMMAND
 
-	lda #$00 
-	sta dma_bank
+	//	DMA 
 	lda #>DMA_BUFFER
-	sta dma_hi 
+	sta MEGA_DMA_msb 
 	lda #<DMA_BUFFER
-	sta dma_lo
+	sta MEGA_DMA_lsb
+	//	done
 
 	//	offset the source to the next control byte
 	clc 
-	lda RLE_SOURCE
+	tza
 	adc DMA_SIZE 
-	sta RLE_SOURCE 
+	taz
 	lda RLE_SOURCE+1
 	adc DMA_SIZE+1
 	sta RLE_SOURCE+1
-	lda RLE_SOURCE+2
-	adc #$00
-	sta RLE_SOURCE+2
-
+	//	next 
 	jmp nextchunk
 
 run:
@@ -90,33 +87,29 @@ run:
 	and #$7f 
 	sta DMA_SIZE
 
-	//	fill
+	//	set command to fill
 	lda #$3
 	sta DMA_COMMAND
-	//	get value to fill with 
+
+	//	FILL with byte 
 	RLE_GET()
 	sta DMA_SOURCE
-	//	FILL 
-	lda #$00 
-	sta dma_bank
+
+	//	DMA
 	lda #>DMA_BUFFER
-	sta dma_hi 
+	sta MEGA_DMA_msb 
 	lda #<DMA_BUFFER
-	sta dma_lo
+	sta MEGA_DMA_lsb
+	//	done
 	
 nextchunk:
 	clc 
-	lda DMA_DEST
+	lda RLE_DEST
 	adc DMA_SIZE 
-	sta DMA_DEST
-	lda DMA_DEST+1
+	sta RLE_DEST
+	lda RLE_DEST+1
 	adc DMA_SIZE+1
-	sta DMA_DEST+1
-	lda DMA_DEST+2
-	adc #$00
-	sta DMA_DEST+2
-
+	sta RLE_DEST+1
 	jmp next
-exit:
 }
 
