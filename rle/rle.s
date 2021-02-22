@@ -3,7 +3,7 @@
 //	ldq #SOURCE_DATA
 //	stq RLE_SOURCE 
 //	ldq #DEST_ADDRESS
-//	sta RLE_DEST 
+//	stq RLE_DEST 
 //	jsr RLEDecompressRoutine
 
 //	data format 
