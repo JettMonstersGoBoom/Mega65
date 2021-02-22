@@ -1,5 +1,18 @@
 
 
+//	ldq #SOURCE_DATA
+//	stq RLE_SOURCE 
+//	ldq #DEST_ADDRESS
+//	sta RLE_DEST 
+//	jsr RLEDecompressRoutine
+
+//	data format 
+//	input byte 
+//	01-7F copy next N bytes 
+//	80-FF fill next (N&$7f) bytes
+//	00 end of data
+
+
 .label MEGA_DMA_lsb=$D700
 .label MEGA_DMA_msb=$D701
 .label MEGA_DMA_bank=$D702
