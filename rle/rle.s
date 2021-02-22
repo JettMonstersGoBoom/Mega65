@@ -30,8 +30,12 @@ RLEDecompressRoutine:
 	sta DMA_SIZE+1
 	sta	MEGA_DMA_state
 	sta MEGA_DMA_bank
-	ldq RLE_SOURCE
-	stq DMA_SOURCE 
+	lda RLE_SOURCE 
+	sta DMA_SOURCE 
+	lda RLE_SOURCE+1 
+	sta DMA_SOURCE+1
+	lda RLE_SOURCE+2 
+	sta DMA_SOURCE+2
 
 	ldz #$00
 
